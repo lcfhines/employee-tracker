@@ -1,10 +1,29 @@
+// dependencies: inquirer, console.table, mysql
 const inquirer = require('inquirer');
-const consoleTable = require("console.table");
-// import and require mysql2
+require("console.table");
 const mysql = require('mysql2');
 
-// view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
 
+// Connect to database and run menu
+const db = mysql.createConnection(
+    {
+        host: 'localhost',
+        // MySQL username,
+        user: 'root',
+        // MySQL password
+        password: 'password',
+        database: 'employees_db'
+    }
+);
+
+db.connect(function (err) {
+    if (err) throw err;
+    // initialize employeeMenu function after connection is made
+    employeeMenu();
+});
+
+
+// employee menu - will store all of the options
 const employeeMenu = () => {
     inquirer.prompt([{
         type: 'list',
@@ -20,68 +39,60 @@ const employeeMenu = () => {
             "Update an Employee Role",
         ]
     }])
-    .then (function(data){
-        // if statements based on what choice user makes, run appropriate function
-        if('choice' === "View All Departments"){
-            viewAllDepartments()
-        } else if ('choice' === "View All Roles"){
-            viewAllRoles()
-        } else if ('choice' === "View All Employees"){
-            viewAllEmployees()
-        } else if ('choice' === "Add a Department"){
-            addDepartment()
-        } else if ('choice' === "Add a Role"){
-            addRole()
-        } else if ('choice' === "Add an Employee"){
-            addEmployee()
-        } else if ('choice' === "Update an Employee Role"){
-            updateEmployeeRole()
-        } else {
-// how to exit?
-        }
-    })
+        .then(function (data) {
+            // if statements based on what choice user makes, run appropriate function
+            console.log(data.choice);
+            if (data.choice === "View All Departments") {
+                viewAllDepartments()
+            } else if (data.choice === "View All Roles") {
+                viewAllRoles()
+            } else if (data.choice === "View All Employees") {
+                viewAllEmployees()
+            } else if (data.choice === "Add a Department") {
+                addDepartment()
+            } else if (data.choice === "Add a Role") {
+                addRole()
+            } else if (data.choice === "Add an Employee") {
+                addEmployee()
+            } else if (data.choice === "Update an Employee Role") {
+                updateEmployeeRole()
+            } else {
+                // exit
+                db.end();
+            }
+        })
 }
 
+// connection?
 
-// Connect to database and run menu
-const db = mysql.createConnection(
-    {
-      host: 'localhost',
-      // MySQL username,
-      user: 'root',
-      // MySQL password
-      password: 'password',
-      database: 'employees_db'
-    },
-    employeeMenu()
-  );
 
 // VIEW
 const viewAllDepartments = () => {
-    db.query("SELECT * from department", function(err, result) {
-        if(err) throw err
+    db.query("SELECT * FROM department", function (err, result) {
+        if (err) throw err
         console.table(result)
+        employeeMenu();
     })
 }
 
 const viewAllRoles = () => {
-    db.query("SELECT * from role", function(err, result) {
-        if(err) throw err
+    db.query("SELECT * FROM role", function (err, result) {
+        if (err) throw err
         console.table(result)
+        employeeMenu();
     })
 }
 
 const viewAllEmployees = () => {
-    db.query("SELECT * from employee", function(err, result) {
-        if(err) throw err
+    db.query("SELECT * FROM employee", function (err, result) {
+        if (err) throw err
         console.table(result)
+        employeeMenu();
     })
 }
 
 // ADD DEPARTMENT
-    // NAME
-// repeat for roles and depts
-// first name, last name, role id, manager id
+// NAME
 const addDepartment = () => {
     inquirer.prompt([
         {
@@ -90,16 +101,17 @@ const addDepartment = () => {
             name: 'name',
         },
     ])
-.then (function({name}){
-    db.query("INSERT INTO employee values ?", [name], function(err, result){
-        if(err) throw err
-        console.table(result)
-    })
-})
+        .then(function ({ name }) {
+            db.query("INSERT INTO department VALUES ?", [name], function (err, result) {
+                if (err) throw err
+                console.table(result)
+                employeeMenu();
+            })
+        })
 }
 
 // ADD ROLE
-    // TITLE, SALARY, DEPARTMENT_ID (choice between existing ids in department table)
+// TITLE, SALARY, DEPARTMENT_ID (choice between existing ids in department table)
 const addRole = () => {
     inquirer.prompt([
         {
@@ -112,7 +124,7 @@ const addRole = () => {
             message: 'What is the salary of the role?',
             name: 'salary',
         },
-    // figure out how to only allow existing ids
+        // figure out how to only allow existing ids
         {
             type: 'list',
             message: 'What department is the role in?',
@@ -120,16 +132,17 @@ const addRole = () => {
             choices: '',
         },
     ])
-.then (function({title, salary, department_id}){
-    db.query("INSERT INTO employee values (?, ?, ?)", [title, salary, department_id], function(err, result){
-        if(err) throw err
-        console.table(result)
-    })
-})
+        .then(function ({ title, salary, department_id }) {
+            db.query("INSERT INTO role VALUES (?)", [title, salary, department_id], function (err, result) {
+                if (err) throw err
+                console.table(result)
+                employeeMenu();
+            })
+        })
 }
 
 // ADD EMPLOYEE
-    // FIRST NAME, LAST NAME, ROLE_ID (of existing ids in role table), MANAGER_ID (of existing ids in employee table)
+// FIRST NAME, LAST NAME, ROLE_ID (of existing ids in role table), MANAGER_ID (of existing ids in employee table)
 const addEmployee = () => {
     inquirer.prompt([
         {
@@ -142,14 +155,14 @@ const addEmployee = () => {
             message: 'What is the last name of the employee?',
             name: 'last_name',
         },
-    // figure out how to only display existing ids as choices
+        // figure out how to only display existing ids as choices
         {
             type: 'list',
             message: 'What is the last name of the employee?',
             name: 'role_id',
             choices: ''
         },
-    // figure out how to only display existing ids as choices
+        // figure out how to only display existing ids as choices
         {
             type: 'list',
             message: 'What is the last name of the employee?',
@@ -157,12 +170,13 @@ const addEmployee = () => {
             choices: '',
         },
     ])
-.then (function({first_name, last_name, role_id, manager_id}){
-    db.query("INSERT INTO employee values (?, ?, ?,?)", [first_name, last_name, role_id, manager_id], function(err, result){
-        if(err) throw err
-        console.table(result)
-    })
-})
+        .then(function ({ first_name, last_name, role_id, manager_id }) {
+            db.query("INSERT INTO employee VALUES (?)", [first_name, last_name, role_id, manager_id], function (err, result) {
+                if (err) throw err
+                console.table(result)
+                employeeMenu();
+            })
+        })
 }
 
 
@@ -174,9 +188,9 @@ const updateEmployeeRole = () => {
             type: 'list',
             message: 'Which employee would you like to update?',
             name: 'selection',
-        // figure out how to only display existing employees
+            // figure out how to only display existing employees
             choices: '',
         }
     ])
-// then prompt to select new role and update in the database
+    // then prompt to select new role and update in the database
 }
