@@ -4,7 +4,8 @@ require("console.table");
 const mysql = require('mysql2');
 
 
-// Connect to database and run menu
+// connect to database
+// user needs to enter their own username and password in order to connect
 const db = mysql.createConnection(
     {
         host: 'localhost',
@@ -41,7 +42,7 @@ const employeeMenu = () => {
     }])
         .then(function (data) {
             // if statements based on what choice user makes, run appropriate function
-            console.log(data.choice);
+            // data.choice will give us the user's selection
             if (data.choice === "View All Departments") {
                 viewAllDepartments()
             } else if (data.choice === "View All Roles") {
@@ -62,9 +63,6 @@ const employeeMenu = () => {
             }
         })
 }
-
-// connection?
-
 
 // VIEW
 const viewAllDepartments = () => {
@@ -102,7 +100,7 @@ const addDepartment = () => {
         },
     ])
         .then(function ({ name }) {
-            db.query("INSERT INTO department VALUES ?", [name], function (err, result) {
+            db.query("INSERT INTO department.name VALUES (?)", [name], function (err, result) {
                 if (err) throw err
                 console.table(result)
                 employeeMenu();
