@@ -54,6 +54,7 @@ Run node index to initiate the employee database and select an option. Answer pr
 
 The walkthrough video below demonstrates the functionality of the employee tracker.  
 
+
 ## License
 
 This application is covered by [MIT License](`https://choosealicense.com/licenses/mit/`).
