@@ -1,6 +1,6 @@
 # Employee Tracker
 
-`![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)`
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ## Description
 
@@ -57,4 +57,4 @@ The walkthrough video below demonstrates the functionality of the employee track
 
 ## License
 
-This application is covered by [MIT License](`https://choosealicense.com/licenses/mit/`).
+This application is covered by [MIT License](https://choosealicense.com/licenses/mit/).
