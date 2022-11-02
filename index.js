@@ -8,7 +8,7 @@ const mysql = require('mysql2');
 const employeeMenu = () => {
     inquirer.prompt([{
         type: 'list',
-        name: "choice",
+        name: 'choice',
         message: "What would you like to do?",
         choices: [
             "View All Departments",
@@ -22,25 +22,26 @@ const employeeMenu = () => {
     }])
     .then (function(data){
         // if statements based on what choice user makes, run appropriate function
-        if(choice === "View All Departments"){
+        if('choice' === "View All Departments"){
             viewAllDepartments()
-        } else if (choice === "View All Roles"){
+        } else if ('choice' === "View All Roles"){
             viewAllRoles()
-        } else if (choice === "View All Employees"){
+        } else if ('choice' === "View All Employees"){
             viewAllEmployees()
-        } else if (choice === "Add a Department"){
+        } else if ('choice' === "Add a Department"){
             addDepartment()
-        } else if (choice === "Add a Role"){
+        } else if ('choice' === "Add a Role"){
             addRole()
-        } else if (choice === "Add an Employee"){
+        } else if ('choice' === "Add an Employee"){
             addEmployee()
-        } else if (choice === "Update an Employee Role"){
+        } else if ('choice' === "Update an Employee Role"){
             updateEmployeeRole()
         } else {
-
+// how to exit?
         }
     })
 }
+
 
 // Connect to database and run menu
 const db = mysql.createConnection(
