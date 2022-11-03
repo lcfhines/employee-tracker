@@ -113,7 +113,9 @@ const addDepartment = () => {
 // ADD ROLE
 // TITLE, SALARY, DEPARTMENT_ID (choice between existing ids in department table)
 const addRole = () => {
-    inquirer.prompt([
+    db.query("SELECT * FROM department", function (err, result) {
+        if (err) throw err;
+        inquirer.prompt([
         {
             type: 'input',
             message: 'What is the title of the role?',
@@ -128,23 +130,26 @@ const addRole = () => {
         {
             type: 'list',
             message: 'What department is the role in?',
-            name: 'department_id',
-            choices: [
-                "Engineering",
-                "Finance",
-                "Product",
-                "Operations",
-            ]
-        },
+            name: 'department_name',
+            choices: result.map(department => department.name),
+        },              
     ])
-        .then(function ({ title, salary, department_id }) {
-            db.query("INSERT INTO role VALUES (?)", [title, salary, department_id], function (err, result) {
+        .then(function(data) {
+            const chosenDepartment = result.find(department => department.name === data.department_name);
+            console.log(chosenDepartment)
+
+            db.query('INSERT INTO role SET ?',
+            {
+                title: data.title,
+                department_id: chosenDepartment.id,
+                salary: data.salary,
+            }, function (err, result) {
                 if (err) throw err
                 console.table(result)
-                employeeMenu();
             })
+                employeeMenu();
         })
-}
+})}
 
 // ADD EMPLOYEE
 // FIRST NAME, LAST NAME, ROLE_ID (of existing ids in role table), MANAGER_ID (of existing ids in employee table)
