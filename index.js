@@ -176,7 +176,7 @@ const addEmployee = () => {
                 name: 'role_name',
                 choices: result.map(role => role.title)
             },
-            // figure out how to only display existing ids as choices
+            // figure out how to only display existing managers as choices
             {
                 // type: 'list',
                 // message: 'Who will be the manager for the employee?',
@@ -210,14 +210,38 @@ const addEmployee = () => {
 // UPDATE EMPLOYEE ROLE
 
 const updateEmployeeRole = () => {
+    db.query("SELECT * FROM role", function (err, result) {
+        if (err) throw err;
+    db.query("SELECT * FROM employee", function (err, result) {
+        if (err) throw err;
     inquirer.prompt([
         {
             type: 'list',
             message: 'Which employee would you like to update?',
-            name: 'selection',
-            // figure out how to only display existing employees
-            choices: '',
+            name: 'chosen_employee',
+            // display last names of existing employees
+            choices: result.map(employee => employee.last_name),
+        },
+        {
+            type: 'list',
+            message: 'What is the employees new role?',
+            name: 'chosen_role',
+            // display roles
+            choices: result.map(role => role.title),
         }
     ])
     // then prompt to select new role and update in the database
+    .then(function (data) {
+        const chosenEmployee = result.find(employee => employee.last_name === data.chosen_employee);
+        const chosenRole = result.find(role => role.title === data.chosen_role);
+        db.query('UPDATE employee SET ?', {
+            role_id: chosenRole.id,
+        }, function (err, result) {
+            if (err) throw err
+            console.table(result)
+        })
+        employeeMenu();
+    })
+})
+    })
 }
