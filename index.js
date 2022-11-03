@@ -99,14 +99,16 @@ const addDepartment = () => {
             name: 'name',
         },
     ])
-        .then(function ({ name }) {
-            db.query("INSERT INTO department.name VALUES (?)", [name], function (err, result) {
-                if (err) throw err
-                console.table(result)
-                employeeMenu();
-            })
+        .then(function (name) {
+            db.query('INSERT INTO department SET ?', name), function (err, result) {
+                if (err) throw err;
+                console.table(result);
+            }
+            employeeMenu();
         })
+
 }
+
 
 // ADD ROLE
 // TITLE, SALARY, DEPARTMENT_ID (choice between existing ids in department table)
@@ -127,7 +129,12 @@ const addRole = () => {
             type: 'list',
             message: 'What department is the role in?',
             name: 'department_id',
-            choices: '',
+            choices: [
+                "Engineering",
+                "Finance",
+                "Product",
+                "Operations",
+            ]
         },
     ])
         .then(function ({ title, salary, department_id }) {
