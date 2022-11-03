@@ -113,6 +113,7 @@ const addDepartment = () => {
 // ADD ROLE
 // TITLE, SALARY, DEPARTMENT_ID (choice between existing ids in department table)
 const addRole = () => {
+    // use department table to get existing departments that role can be part of
     db.query("SELECT * FROM department", function (err, result) {
         if (err) throw err;
         inquirer.prompt([
@@ -126,7 +127,6 @@ const addRole = () => {
             message: 'What is the salary of the role?',
             name: 'salary',
         },
-        // figure out how to only allow existing ids
         {
             type: 'list',
             message: 'What department is the role in?',
@@ -153,40 +153,56 @@ const addRole = () => {
 
 // ADD EMPLOYEE
 // FIRST NAME, LAST NAME, ROLE_ID (of existing ids in role table), MANAGER_ID (of existing ids in employee table)
+
 const addEmployee = () => {
-    inquirer.prompt([
-        {
-            type: 'input',
-            message: 'What is the first name of the employee?',
-            name: 'first_name',
-        },
-        {
-            type: 'input',
-            message: 'What is the last name of the employee?',
-            name: 'last_name',
-        },
-        // figure out how to only display existing ids as choices
-        {
-            type: 'list',
-            message: 'What is the last name of the employee?',
-            name: 'role_id',
-            choices: ''
-        },
-        // figure out how to only display existing ids as choices
-        {
-            type: 'list',
-            message: 'What is the last name of the employee?',
-            name: 'manager_id',
-            choices: '',
-        },
+// use role table to get titles for new employee
+    db.query("SELECT * FROM role", function (err, result) {
+        if (err) throw err;
+        inquirer.prompt([
+            {
+                type: 'input',
+                message: 'What is the first name of the employee?',
+                name: 'first_name',
+            },
+            {
+                type: 'input',
+                message: 'What is the last name of the employee?',
+                name: 'last_name',
+            },
+            {
+                type: 'list',
+                message: 'What is the title for the employee?',
+                name: 'role_name',
+                choices: result.map(role => role.title)
+            },
+            // figure out how to only display existing ids as choices
+            {
+                // type: 'list',
+                // message: 'Who will be the manager for the employee?',
+                // name: 'manager_name',
+                // choices: result.map(employee => employee.last_name),
+                type: 'list',
+                message: 'Select the manager id for the employees manager',
+                name: 'manager_id',
+                choices: [1,2,3,4,5,6,7,8,9,10]
+            },
     ])
-        .then(function ({ first_name, last_name, role_id, manager_id }) {
-            db.query("INSERT INTO employee VALUES (?)", [first_name, last_name, role_id, manager_id], function (err, result) {
+        .then(function (data) {
+            const chosenRole = result.find(role => role.title === data.role_name);
+            // const chosenManager = result.find(employee => employee.last_name === data.manager_name);
+
+            db.query('INSERT INTO employee SET ?', {
+                first_name: data.first_name,
+                last_name: data.last_name,
+                role_id: chosenRole.id,
+                manager_id: data.manager_id,
+            }, function (err, result) {
                 if (err) throw err
                 console.table(result)
-                employeeMenu();
             })
+            employeeMenu();
         })
+    })
 }
 
 
