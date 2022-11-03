@@ -54,6 +54,8 @@ Run node index to initiate the employee database and select an option. Answer pr
 
 The walkthrough video below demonstrates the functionality of the employee tracker.  
 
+https://user-images.githubusercontent.com/113798073/199638792-843157b8-3ac1-4219-bf1d-d10811e1034a.mp4
+
 
 ## License
 
