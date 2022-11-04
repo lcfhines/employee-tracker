@@ -165,85 +165,80 @@ const addEmployee = () => {
         // use employee table to get last names to use as choices for manager
         db.query("SELECT * FROM employee", function (err, employees) {
             if (err) throw err;
-        inquirer.prompt([
-            {
-                type: 'input',
-                message: 'What is the first name of the employee?',
-                name: 'first_name',
-            },
-            {
-                type: 'input',
-                message: 'What is the last name of the employee?',
-                name: 'last_name',
-            },
-            {
-                type: 'list',
-                message: 'What is the title for the employee?',
-                name: 'role_name',
-                choices: roles.map(role => role.title)
-            },
-            {
-                type: 'list',
-                message: 'Who will be the manager for the employee?',
-                name: 'manager_name',
-                choices: employees.map(employee => employee.last_name)
-            },
-        ])
-            .then(function (data) {
-                const chosenRole = roles.find(role => role.title === data.role_name);
-                const chosenManager = employees.find(employee => employee.last_name === data.manager_name);
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    message: 'What is the first name of the employee?',
+                    name: 'first_name',
+                },
+                {
+                    type: 'input',
+                    message: 'What is the last name of the employee?',
+                    name: 'last_name',
+                },
+                {
+                    type: 'list',
+                    message: 'What is the title for the employee?',
+                    name: 'role_name',
+                    choices: roles.map(role => role.title)
+                },
+                {
+                    type: 'list',
+                    message: 'Who will be the manager for the employee?',
+                    name: 'manager_name',
+                    choices: employees.map(employee => employee.last_name)
+                },
+            ])
+                .then(function (data) {
+                    const chosenRole = roles.find(role => role.title === data.role_name);
+                    const chosenManager = employees.find(employee => employee.last_name === data.manager_name);
 
-                db.query('INSERT INTO employee SET ?', {
-                    first_name: data.first_name,
-                    last_name: data.last_name,
-                    role_id: chosenRole.id,
-                    manager_id: data.manager_id,
-                }, function (err, result) {
-                    if (err) throw err
-                    console.table(result)
+                    db.query('INSERT INTO employee SET ?', {
+                        first_name: data.first_name,
+                        last_name: data.last_name,
+                        role_id: chosenRole.id,
+                        manager_id: data.manager_id,
+                    }, function (err, result) {
+                        if (err) throw err
+                        console.table(result)
+                    })
+                    employeeMenu();
                 })
-                employeeMenu();
-            })
+        })
     })
-})
 }
 
 
 // UPDATE EMPLOYEE ROLE
 
 const updateEmployeeRole = () => {
-    db.query("SELECT * FROM role", function (err, result) {
+    db.query("SELECT * FROM role", function (err, roles) {
         if (err) throw err;
-    db.query("SELECT * FROM employee", function (err, result) {
-        if (err) throw err;
-    inquirer.prompt([
-        {
-            type: 'list',
-            message: 'Which employee would you like to update?',
-            name: 'chosen_employee',
-            // display last names of existing employees
-            choices: result.map(employee => employee.last_name),
-        },
-        {
-            type: 'list',
-            message: 'What is the employees new role?',
-            name: 'chosen_role',
-            // display roles
-            choices: result.map(role => role.title),
-        }
-    ])
-    // then prompt to select new role and update in the database
-    .then(function (data) {
-        const chosenEmployee = result.find(employee => employee.last_name === data.chosen_employee);
-        const chosenRole = result.find(role => role.title === data.chosen_role);
-        db.query('UPDATE employee SET ?', {
-            role_id: chosenRole.id,
-        }, function (err, result) {
-            if (err) throw err
-            console.table(result)
+        db.query("SELECT * FROM employee", function (err, employees) {
+            if (err) throw err;
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    message: 'Which employee would you like to update?',
+                    name: 'chosen_employee',
+                    // display last names of existing employees
+                    choices: employees.map(employee => employee.last_name),
+                },
+                {
+                    type: 'list',
+                    message: 'What is the employees new role?',
+                    name: 'chosen_role',
+                    // display roles
+                    choices: roles.map(role => role.title),
+                }
+            ])
+            // then prompt to select new role and update in the database
+            .then(function (data) {
+                const chosenEmployee = employees.find(employee => employee.last_name === data.chosen_employee);
+                const chosenRole = roles.find(role => role.title === data.chosen_role);
+                db.query(`UPDATE employee SET role_id = ${chosenRole.id} WHERE id = ${chosenEmployee.id}`)
+                employeeMenu();
+            })
         })
-        employeeMenu();
-    })
-})
     })
 }
