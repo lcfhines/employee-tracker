@@ -65,6 +65,7 @@ const employeeMenu = () => {
 }
 
 // VIEW
+// all columns from department table
 const viewAllDepartments = () => {
     db.query("SELECT * FROM department", function (err, result) {
         if (err) throw err
@@ -73,6 +74,7 @@ const viewAllDepartments = () => {
     })
 }
 
+// id, title, salary from role table, department name from department table
 const viewAllRoles = () => {
     db.query("SELECT role.id, role.title, department.name AS 'department', role.salary FROM role JOIN department ON role.department_id = department.id", function (err, result) {
         if (err) throw err
@@ -81,8 +83,9 @@ const viewAllRoles = () => {
     })
 }
 
+// id, first and last name from employee table, title and salary from role table, department name from department table
 const viewAllEmployees = () => {
-    db.query("SELECT * FROM employee", function (err, result) {
+    db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title AS 'title', department.name as 'department', role.salary as 'salary' FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;`, function (err, result) {
         if (err) throw err
         console.table(result)
         employeeMenu();
@@ -178,14 +181,24 @@ const addEmployee = () => {
             },
             // figure out how to only display existing managers as choices
             {
-                // type: 'list',
-                // message: 'Who will be the manager for the employee?',
-                // name: 'manager_name',
-                // choices: result.map(employee => employee.last_name),
                 type: 'list',
-                message: 'Select the manager id for the employees manager',
-                name: 'manager_id',
-                choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                message: 'Who will be the manager for the employee?',
+                name: 'manager_name',
+                choices: () => {
+                    db.query("SELECT * FROM employee", (err, employees) => {
+                        return employees;
+                        // console.log(employees);
+                        // employees.map( employee => {
+                        //     return employee.last_name
+                        // })
+                    })
+                } 
+                
+                // result.map(employee => employee.last_name),
+                // type: 'list',
+                // message: 'Select the manager id for the employees manager',
+                // name: 'manager_id',
+                // choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             },
         ])
             .then(function (data) {

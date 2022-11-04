@@ -5,9 +5,8 @@ FROM role
 JOIN department ON role.department_id = department.id;
 
 
---  query to include values from department & role on employee table
-SELECT employee.id, employee.first_name, employee.last_name, role.title AS 'title', department.name as 'department', role.salary as 'salary', 
+-- query to include data from department & role
+SELECT employee.id, employee.first_name, employee.last_name, role.title AS 'title', department.name as 'department', role.salary as 'salary'
 FROM employee
-JOIN role ON employee.role_id = role.id;
--- FROM role
--- JOIN department ON role.department_id = department.id;
+LEFT JOIN role ON employee.role_id = role.id
+LEFT JOIN department ON role.department_id = department.id;
