@@ -159,9 +159,12 @@ const addRole = () => {
 // FIRST NAME, LAST NAME, ROLE_ID (of existing ids in role table), MANAGER_ID (of existing ids in employee table)
 
 const addEmployee = () => {
-    // use role table to get titles for new employee
-    db.query("SELECT * FROM role", function (err, result) {
+    // use role table to get titles to use as choices 
+    db.query("SELECT * FROM role", function (err, roles) {
         if (err) throw err;
+        // use employee table to get last names to use as choices for manager
+        db.query("SELECT * FROM employee", function (err, employees) {
+            if (err) throw err;
         inquirer.prompt([
             {
                 type: 'input',
@@ -177,33 +180,18 @@ const addEmployee = () => {
                 type: 'list',
                 message: 'What is the title for the employee?',
                 name: 'role_name',
-                choices: result.map(role => role.title)
+                choices: roles.map(role => role.title)
             },
-            // figure out how to only display existing managers as choices
             {
                 type: 'list',
                 message: 'Who will be the manager for the employee?',
                 name: 'manager_name',
-                choices: () => {
-                    db.query("SELECT * FROM employee", (err, employees) => {
-                        return employees;
-                        // console.log(employees);
-                        // employees.map( employee => {
-                        //     return employee.last_name
-                        // })
-                    })
-                } 
-                
-                // result.map(employee => employee.last_name),
-                // type: 'list',
-                // message: 'Select the manager id for the employees manager',
-                // name: 'manager_id',
-                // choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                choices: employees.map(employee => employee.last_name)
             },
         ])
             .then(function (data) {
-                const chosenRole = result.find(role => role.title === data.role_name);
-                // const chosenManager = result.find(employee => employee.last_name === data.manager_name);
+                const chosenRole = roles.find(role => role.title === data.role_name);
+                const chosenManager = employees.find(employee => employee.last_name === data.manager_name);
 
                 db.query('INSERT INTO employee SET ?', {
                     first_name: data.first_name,
@@ -217,6 +205,7 @@ const addEmployee = () => {
                 employeeMenu();
             })
     })
+})
 }
 
 
