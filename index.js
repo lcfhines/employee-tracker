@@ -232,13 +232,13 @@ const updateEmployeeRole = () => {
                     choices: roles.map(role => role.title),
                 }
             ])
-            // then prompt to select new role and update in the database
-            .then(function (data) {
-                const chosenEmployee = employees.find(employee => employee.last_name === data.chosen_employee);
-                const chosenRole = roles.find(role => role.title === data.chosen_role);
-                db.query(`UPDATE employee SET role_id = ${chosenRole.id} WHERE id = ${chosenEmployee.id}`)
-                employeeMenu();
-            })
+                // then prompt to select new role and update in the database
+                .then(function (data) {
+                    const chosenEmployee = employees.find(employee => employee.last_name === data.chosen_employee);
+                    const chosenRole = roles.find(role => role.title === data.chosen_role);
+                    db.query(`UPDATE employee SET role_id = ${chosenRole.id} WHERE id = ${chosenEmployee.id}`)
+                    employeeMenu();
+                })
         })
     })
 }
